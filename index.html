@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket Multiple ChatBox</title>
+    <link rel="stylesheet" href="app.css">
+</head>
+
+<body>
+<div class="mainChatPart">
+    <div class = 'person'><text id="onlineUserCount">Online User Number</text></div>
+    <div class="container">
+        <div id="content" class="content"></div>
+    </div>
+    <div class="footer">
+        <input placeholder="set nick name" name="userName" id="userName"/>
+        <button id="setNameBtn">SetNickName</button>
+        <textarea placeholder="enter message" id="message" name="message"></textarea>
+        <button id="sendMessageBtn">Send</button>
+    </div>
+</div>
+
+<div class = "userListPart">
+    <div class="title"><text>Online User List</text></div>
+    <div id="userList" class="userList"></div>
+</div>
+
+<script src="https://cdn.socket.io/socket.io-1.0.0.js"></script>
+<script type="text/javascript" language="JavaScript" src="app.js"></script>
+</body>
+</html>
