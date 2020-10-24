@@ -106,14 +106,18 @@ setNameBtn.onclick = ()=> {
         userName: JSON.stringify(userName.value)
     };
 
-    ws.emit('connect');
-    //TODO: callback
-    isConnected = true;
-    sendMessageWithParam(data);
+    ws.emit('establishConnection');
 
-    //disable user from changing the username
-    let userNameBtn = document.getElementById('setNameBtn');
-    userNameBtn.setAttribute("disabled", true);
+    ws.on('connected', function (msg) {
+        console.log("connected with session id: " + msg);
+        isConnected = true;
+        sendMessageWithParam(data);
+        //disable user from changing the username
+        let userNameBtn = document.getElementById('setNameBtn');
+        userNameBtn.setAttribute("disabled", true);
+    });
+
+
 
     ws.on('responseMessage', function (msg) {
         let data = msg;
