@@ -1,5 +1,5 @@
 .mainChatPart {
-    width: 400px;
+    width: 600px;
     height: 500px;
     border: 1px dotted grey;
     float: left;
@@ -40,7 +40,7 @@
     border-radius: 5%;
 }
 .footer button{
-    width: 50px;
+    width: 100px;
     height: 50px;
     float: left;
     background-color: deepskyblue;

@@ -13,8 +13,13 @@
         <div id="content" class="content"></div>
     </div>
     <div class="footer">
-        <input placeholder="set nick name" name="userName" id="userName"/>
-        <button id="setNameBtn">SetNickName</button>
+        <select name="chatRoom" id="chatRoom">
+            <option value="Student">Student</option>
+            <option value="Teacher">Teacher</option>
+        </select>
+        <br><br>
+        <input placeholder="set name" name="userName" id="userName"/>
+        <button id="setNameBtn">SetName</button>
         <textarea placeholder="enter message" id="message" name="message"></textarea>
         <button id="sendMessageBtn">Send</button>
     </div>
@@ -27,5 +32,8 @@
 
 <script src="https://cdn.socket.io/socket.io-1.0.0.js"></script>
 <script type="text/javascript" language="JavaScript" src="app.js"></script>
+<script type="text/javascript" language="JavaScript" src="Tools/UITools.js"></script>
+<script type="text/javascript" language="JavaScript" src="Tools/requestMethods.js"></script>
+
 </body>
 </html>
