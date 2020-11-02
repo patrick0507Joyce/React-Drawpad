@@ -7,7 +7,7 @@ import './Chat.css';
 import InfoBar from '../InfoBar/InfoBar'
 import Input from '../Input/Input'
 import Messages from '../Messages/Messages'
-import TextContainer from '../TextContainer/TextContainer'
+import UserCount from '../UserCount/UserCount'
 
 const ENDPOINT = 'localhost:5000';
 
@@ -20,7 +20,7 @@ const Chat = ({location}) => {
     const [room, setRoom] = useState('');
     const [message, setMessage] = useState([]);
     const [messages, setMessages] = useState([]);
-    const [users, setUsers] = useState('');
+    const [users, setUsers] = useState([]);
 
     
 
@@ -47,7 +47,7 @@ const Chat = ({location}) => {
         });
         socket.on('roomData', ({users}) => {
             setUsers(users);
-        })
+        });
     }, []);
 
     const SendMessage = (event) => {
@@ -58,7 +58,8 @@ const Chat = ({location}) => {
         }
     }
 
-    console.log(message, messages);
+    console.log("message info:", messages);
+    console.log("Users info:", users);
 
     return(
         <div className="outerContainer">
@@ -66,9 +67,7 @@ const Chat = ({location}) => {
                 <InfoBar room={ room }/>
                 <Messages messages={ messages } name={ name }/>
                 <Input message={ message } setMessage={setMessage} sendMessage={SendMessage} />
-                {/*
-                <TextContainer users={ users } />
-                */}
+                <UserCount users={ users } />
             </div>
         </div>
     )
