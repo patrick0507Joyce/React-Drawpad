@@ -8,6 +8,9 @@ import InfoBar from '../InfoBar/InfoBar'
 import Input from '../Input/Input'
 import Messages from '../Messages/Messages'
 import TextContainer from '../TextContainer/TextContainer'
+
+const ENDPOINT = 'localhost:5000';
+
 let socket = null;
 
 
@@ -19,7 +22,7 @@ const Chat = ({location}) => {
     const [messages, setMessages] = useState([]);
     const [users, setUsers] = useState('');
 
-    const ENDPOINT = 'localhost:5000';
+    
 
     useEffect(() => {
         const {name, room} = queryString.parse(location.search);
@@ -39,8 +42,8 @@ const Chat = ({location}) => {
     }, [ENDPOINT, location.search]);
 
     useEffect(() => {
-        socket.on('message', (msg) => {
-            setMessages([...messages, msg]);
+        socket.on('message', (message) => {
+            setMessages(messages => [...messages, message ]);
         });
         socket.on('roomData', ({users}) => {
             setUsers(users);
@@ -63,7 +66,9 @@ const Chat = ({location}) => {
                 <InfoBar room={ room }/>
                 <Messages messages={ messages } name={ name }/>
                 <Input message={ message } setMessage={setMessage} sendMessage={SendMessage} />
+                {/*
                 <TextContainer users={ users } />
+                */}
             </div>
         </div>
     )

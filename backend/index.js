@@ -22,7 +22,7 @@ io.on('connection', (socket) => {
         socket.broadcast.to(user.room).emit('message', { user: 'admin', text: `${user.name} has joined`});
         socket.join(user.room);
 
-        io.to(user.room).emit('roomData', {room: user.room, users: getUsersInRoom(user.room)})
+        io.to(user.room).emit('roomData', {room: user.room, users: getUsersInRoom(user.room) })
         //no error's callback
         callback();
     });
@@ -30,7 +30,6 @@ io.on('connection', (socket) => {
     socket.on('sendMessage', (msg, callback) => {
         const user = getUser(socket.id);
         io.to(user.room).emit('message', { user: user.name, text: msg});
-        io.to(user.room).emit('roomData', {room: user.room, users: getUsersInRoom(user.room)});
         callback();
     });
 
