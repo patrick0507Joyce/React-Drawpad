@@ -12,6 +12,9 @@ const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
 
+// Set used transport technologies here
+io.set('transports', ['polling', 'websocket']);
+
 io.on('connection', (socket) => {    
     socket.on('join', ({ name, room }, callback) => {
         const { error, user } = addUser({id: socket.id, name, room});

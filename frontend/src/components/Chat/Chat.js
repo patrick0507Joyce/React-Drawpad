@@ -13,7 +13,6 @@ const ENDPOINT = 'localhost:5000';
 
 let socket = null;
 
-
 const Chat = ({location}) => {
 
     const [name, setName] = useState('');
@@ -26,7 +25,9 @@ const Chat = ({location}) => {
 
     useEffect(() => {
         const {name, room} = queryString.parse(location.search);
-        socket = io(ENDPOINT);
+        
+        // Set available transport technologies before using socket
+        socket = io(ENDPOINT, {transports: ['polling', 'websocket']});
 
         setName(name);
         setRoom(room);
