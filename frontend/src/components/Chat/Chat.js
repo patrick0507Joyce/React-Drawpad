@@ -1,6 +1,5 @@
 import React, {useState, useEffect} from 'react'
 import queryString from 'query-string'
-import io from 'socket.io-client'
 
 import './Chat.css';
 
@@ -8,10 +7,8 @@ import InfoBar from '../InfoBar/InfoBar'
 import Input from '../Input/Input'
 import Messages from '../Messages/Messages'
 import UserCount from '../UserCount/UserCount'
-
-const ENDPOINT = 'localhost:5000';
-
-let socket = null;
+import Canvas from '../Canvas/Canvas'
+import socket from '../socket'
 
 const Chat = ({location}) => {
 
@@ -27,7 +24,6 @@ const Chat = ({location}) => {
         const {name, room} = queryString.parse(location.search);
         
         // Set available transport technologies before using socket
-        socket = io(ENDPOINT, {transports: ['polling', 'websocket']});
 
         setName(name);
         setRoom(room);
@@ -40,7 +36,7 @@ const Chat = ({location}) => {
             socket.emit('disconnect');
             socket.off();
         }
-    }, [ENDPOINT, location.search]);
+    }, [location.search]);
 
     useEffect(() => {
         socket.on('message', (message) => {
@@ -64,6 +60,7 @@ const Chat = ({location}) => {
 
     return(
         <div className="outerContainer">
+        <Canvas></Canvas>
             <div className="container">
                 <InfoBar room={ room }/>
                 <Messages messages={ messages } name={ name }/>

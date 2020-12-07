@@ -38,7 +38,6 @@ io.on('connection', (socket) => {
         callback();
     });
 
-
     socket.on('disconnect', () => {
         console.log('we have lost conenction!!');
         const user = removeUser(socket.id);
@@ -47,6 +46,17 @@ io.on('connection', (socket) => {
             io.to(user.room).emit('message', {user:'admin', text:`${user.name} has left room!`});
             io.to(user.room).emit('roomData', { room: user.room, users: getUsersInRoom(user.room)});
         }
+    })
+    
+    socket.on('canvas_mouse_co-ordinates', (coordinates) => {
+        const user = getUser(socket.id);
+        socket.broadcast.to(user.room).emit('incoming-canvas-coordinates', coordinates);
+
+    })
+    
+    socket.on('canvas_clear', () => {
+        const user = getUser(socket.id);
+        socket.broadcast.to(user.room).emit('canvas_clear');
     })
 })
 
