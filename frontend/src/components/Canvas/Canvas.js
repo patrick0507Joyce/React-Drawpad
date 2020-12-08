@@ -4,38 +4,42 @@ import socket from '../socket'
 import './Canvas.css';
 
 const Canvas = () => {
-    
+
     const canvasRef = useRef(null);
     const [context, setContext] = useState(null);
+
 
     const clearCanvas = () => {
         if (context) { // DO NOT REMOVE, don't work without this piece of shit if
             context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
         }
     }
-    
+
     useEffect(() => {
+        let blockDrawing = false;
         let mouseDown = false;
         let start = { x: 0, y: 0 };
         let end = { x: 0, y: 0 };
         let canvasOffsetLeft = 0;
         let canvasOffsetTop = 0;
-        
+
         if (canvasRef.current) {
             const renderCtx = canvasRef.current.getContext('2d');
-        
-            if (renderCtx) {
-                canvasRef.current.addEventListener('mousedown', handleMouseDown);
-                canvasRef.current.addEventListener('mouseup', handleMouseUp);
-                canvasRef.current.addEventListener('mousemove', handleMouseMove);
-        
-                canvasOffsetLeft = canvasRef.current.offsetLeft;
-                canvasOffsetTop = canvasRef.current.offsetTop;
 
-                renderCtx.fillStyle = "blue";
-                renderCtx.fillRect(0, 0, canvasRef.width, canvasRef.height);
-        
-                setContext(renderCtx);
+            if (renderCtx) {
+                if (!blockDrawing) {
+                    canvasRef.current.addEventListener('mousedown', handleMouseDown);
+                    canvasRef.current.addEventListener('mouseup', handleMouseUp);
+                    canvasRef.current.addEventListener('mousemove', handleMouseMove);
+
+                    canvasOffsetLeft = canvasRef.current.offsetLeft;
+                    canvasOffsetTop = canvasRef.current.offsetTop;
+
+                    renderCtx.fillStyle = "white";
+                    renderCtx.fillRect(0, 0, canvasRef.width, canvasRef.height);
+
+                    setContext(renderCtx);
+                }
             }
         }
 
@@ -45,8 +49,38 @@ const Canvas = () => {
             }
         });
 
+        socket.on('blockDrawing', () => {
+            console.log("Removed event listeners")
+            if (context) {
+                canvasRef.current.removeEventListener('mousedown', handleMouseDown)
+                canvasRef.current.removeEventListener('mouseup', handleMouseUp)
+                canvasRef.current.removeEventListener('mousemove', handleMouseMove)
+                blockDrawing = true;
+            }
+        });
+
+        socket.on('enableDrawing', () => {
+            console.log("Removed event listeners")
+            if (context) {
+                canvasRef.current.addEventListener('mousedown', handleMouseDown);
+                canvasRef.current.addEventListener('mouseup', handleMouseUp);
+                canvasRef.current.addEventListener('mousemove', handleMouseMove);
+
+                blockDrawing = false;
+            }
+        });
+
+        socket.on('make_user_pick_new_room_msg', () => {
+            displayPopup()
+        });
+
         socket.on('canvas_clear', () => {
             clearCanvas()
+        });
+
+        socket.on('start_new_game', () => {
+            console.log("Send new game to server")
+            socket.emit('gameStart')
         });
 
         function handleMouseDown(evt) {
@@ -132,6 +166,15 @@ const Canvas = () => {
         clearCanvas();
     }
 
+    const displayPopup = () => {
+        var secret = prompt("Please enter the word people will have to guess!:");
+        if (secret == null || secret == "") {
+            console.log("Game not started, user did not set word")
+        } else {
+            socket.emit("setRoomDrawMessage", (secret))
+        }
+    }
+
     return (
         <div
             style={{
@@ -148,6 +191,7 @@ const Canvas = () => {
                 }}
             ></canvas>
             <button onClick={() => clearCanvasInformRoom()}>Clear canvas</button>
+            <button onClick={() => displayPopup()}>Start game</button>
         </div>
     );
 }
