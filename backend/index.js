@@ -43,7 +43,7 @@ io.on('connection', (socket) => {
                 setUserHasGuessed(user.id, true)
                 if (checkIfEveryoneHasGuessed(user.room)) {
                     io.in(user.room).emit('message', { user: 'admin', text: `Everyone guessed the word!` });
-                    io.in.to(user.room).emit('canvas_clear');
+                    io.in(user.room).emit('canvas_clear');
                     pickNextPlayer(user)
                 }
                 callback()
