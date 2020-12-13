@@ -2,13 +2,24 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import Button from "@material-ui/core/Button";
 import DeleteIcon from "@material-ui/icons/Delete";
 import VideogameAssetIcon from "@material-ui/icons/VideogameAsset";
+import Snackbar from "@material-ui/core/Snackbar";
+import MuiAlert from "@material-ui/lab/Alert";
 
 import socket from "../socket";
+import Input from "../Input/Input";
+
 import "./Canvas.css";
+
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
 const Canvas = () => {
   const canvasRef = useRef(null);
   const [context, setContext] = useState(null);
+  const [forbidStartGame, setForbidStartGameStatus] = useState(false);
+  const [guessContent, setGuessContent] = useState([]);
+  const [successAlert, setSuccessAlert] = useState(false);
 
   const clearCanvas = () => {
     if (context) {
@@ -88,6 +99,7 @@ const Canvas = () => {
     socket.on("start_new_game", () => {
       console.log("Send new game to server");
       socket.emit("gameStart");
+      setSuccessAlert(true);
     });
 
     function handleMouseDown(evt) {
@@ -181,14 +193,31 @@ const Canvas = () => {
     }
   };
 
-  /*
-    const useStyles = makeStyles((theme) => ({
-        button: {
-          margin: theme.spacing(1),
-        },
-      }));
-  const classes = useStyles();
-*/
+  const startGame = () => {
+    if (!forbidStartGame) {
+      displayPopup();
+    }
+  };
+
+  const endGame = () => {
+    if (forbidStartGame) {
+      setForbidStartGameStatus(false);
+    }
+  };
+
+  const SendGuessContent = (event) => {
+    event.preventDefault();
+    setSuccessAlert(true);
+  };
+
+  const handleAlertClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setSuccessAlert(false);
+  };
+
   return (
     <div className="canvasContainer">
       <canvas
@@ -206,7 +235,8 @@ const Canvas = () => {
           variant="contained"
           color="primary"
           startIcon={<VideogameAssetIcon />}
-          onClick={displayPopup}
+          onClick={startGame}
+          disabled={forbidStartGame}
         >
           Start game
         </Button>
@@ -218,6 +248,34 @@ const Canvas = () => {
         >
           Clear Canvas
         </Button>
+        <Button
+          variant="contained"
+          color="default"
+          startIcon={<VideogameAssetIcon />}
+          onClick={endGame}
+          disabled={!forbidStartGame}
+        >
+          End game
+        </Button>
+      </div>
+      {/*<div className="inputContainer">
+        <Input
+          message={guessContent}
+          setMessage={setGuessContent}
+          sendMessage={SendGuessContent}
+        />
+      </div>*/}
+      <div>
+        <Snackbar
+          open={successAlert}
+          autoHideDuration={3000}
+          onClose={handleAlertClose}
+        >
+        {/* severity includes: error, success, info */}
+          <Alert onClose={handleAlertClose} severity="success">
+            CORRECT!
+          </Alert>
+        </Snackbar>
       </div>
     </div>
   );
