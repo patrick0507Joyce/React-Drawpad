@@ -9,6 +9,7 @@
   .container {
     display: flex;
     flex-direction: column;
+    margin: 1%;
     justify-content: space-between;
     background: #FFFFFF;
     border-radius: 8px;
