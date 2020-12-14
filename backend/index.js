@@ -82,8 +82,12 @@ io.on("connection", (socket) => {
         io.to(user.room).emit("message", { user: user.name, text: msg });
         callback();
       }
+    } else {
+      console.log("infor", { user: user.name, text: msg });
+      io.to(user.room).emit("message", { user: user.name, text: msg });
+      callback();
     }
-});
+  });
 
   socket.on("setRoomDrawMessage", (msg) => {
     const user = getUser(socket.id);
