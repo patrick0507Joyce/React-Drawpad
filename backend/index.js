@@ -2,6 +2,10 @@ const express = require("express");
 const socketio = require("socket.io");
 const http = require("http");
 
+// Load env variables from .env and monitoring agents
+require('dotenv').config()
+const spmAgent = require('spm-agent-nodejs')
+
 const {
   addUser,
   removeUser,
