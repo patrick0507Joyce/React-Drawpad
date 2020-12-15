@@ -10,8 +10,7 @@ const App = () => (
     <Router>
         <Route path='/' exact component={Join} />
         <Route path='/room' component={Room} />
-        {/*TODO: implement single chat page without drawing pad */}
-        {/*<Route path='/chat' component={Chat} /> */}
+        <Route path='/chat' component={Chat} />
     </Router>
 );
 

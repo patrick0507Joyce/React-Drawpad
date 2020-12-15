@@ -1,0 +1,89 @@
+{
+  "aggregate": {
+    "timestamp": "2020-12-15T15:49:12.892Z",
+    "scenariosCreated": 5,
+    "scenariosCompleted": 5,
+    "requestsCompleted": 5,
+    "latency": {
+      "min": 0.4,
+      "max": 2.4,
+      "median": 0.5,
+      "p95": 2.4,
+      "p99": 2.4
+    },
+    "rps": {
+      "count": 5,
+      "mean": 1.12
+    },
+    "scenarioDuration": {
+      "min": 5.1,
+      "max": 33.6,
+      "median": 6.6,
+      "p95": 33.6,
+      "p99": 33.6
+    },
+    "scenarioCounts": {
+      "Connection Test": 5
+    },
+    "errors": {},
+    "codes": {
+      "0": 5
+    },
+    "matches": 0,
+    "customStats": {},
+    "counters": {},
+    "scenariosAvoided": 0,
+    "phases": [
+      {
+        "duration": 5,
+        "arrivalRate": 1
+      }
+    ]
+  },
+  "intermediate": [
+    {
+      "timestamp": "2020-12-15T15:49:12.889Z",
+      "scenariosCreated": 5,
+      "scenariosCompleted": 5,
+      "requestsCompleted": 5,
+      "latency": {
+        "min": 0.4,
+        "max": 2.4,
+        "median": 0.5,
+        "p95": 2.4,
+        "p99": 2.4
+      },
+      "rps": {
+        "count": 5,
+        "mean": 1.12
+      },
+      "scenarioDuration": {
+        "min": 5.1,
+        "max": 33.6,
+        "median": 6.6,
+        "p95": 33.6,
+        "p99": 33.6
+      },
+      "scenarioCounts": {
+        "Connection Test": 5
+      },
+      "errors": {},
+      "codes": {
+        "0": 5
+      },
+      "matches": 0,
+      "latencies": [
+        2397123,
+        518185,
+        581604,
+        378595,
+        426165
+      ],
+      "customStats": {},
+      "counters": {},
+      "concurrency": 0,
+      "pendingRequests": 0,
+      "scenariosAvoided": 0
+    }
+  ]
+}

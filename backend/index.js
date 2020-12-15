@@ -62,6 +62,10 @@ io.on("connection", (socket) => {
     callback();
   });
 
+  socket.on("testPerformance", (msg) =>{
+    console.log("received test message:", msg);
+  })
+
   socket.on("sendMessage", (msg, callback) => {
     const user = getUser(socket.id);
     const room = getRoom(user.room);

@@ -1,0 +1,15 @@
+config:
+  target: "http://127.0.0.1:5000"
+  phases:
+    - duration: 5
+      arrivalRate: 1
+scenarios:
+  - name: "Connection Test"
+    engine: "socketio"
+    flow:
+      - emit:
+          channel: "testPerformance"
+          data: "hello"
+          
+
+ 
