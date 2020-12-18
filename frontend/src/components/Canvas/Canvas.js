@@ -1,11 +1,14 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, componentDidMount } from "react";
+import InputColor from "react-input-color";
 import Button from "@material-ui/core/Button";
 import DeleteIcon from "@material-ui/icons/Delete";
 import VideogameAssetIcon from "@material-ui/icons/VideogameAsset";
+import BrushIcon from '@material-ui/icons/Brush';
 import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
 
 import socket from "../socket";
+import Popup from "../Popup/popup";
 import Input from "../Input/Input";
 
 import "./Canvas.css";
@@ -17,6 +20,9 @@ function Alert(props) {
 const Canvas = () => {
   const canvasRef = useRef(null);
   const [context, setContext] = useState(null);
+  const [showPopup, setShowpopup] = useState(false);
+  const [guessWord, setGuessWord] = useState("");
+  const [color, setColor] = useState('#00000');
   const [forbidStartGame, setForbidStartGameStatus] = useState(false);
   const [guessContent, setGuessContent] = useState([]);
   const [successAlert, setSuccessAlert] = useState(false);
@@ -31,7 +37,7 @@ const Canvas = () => {
         canvasRef.current.height
       );
     }
-  };
+  }
 
   useEffect(() => {
     let blockDrawing = false;
@@ -78,7 +84,7 @@ const Canvas = () => {
     });
 
     socket.on("enableDrawing", () => {
-      console.log("Removed event listeners");
+      console.log("Enabled event listeners");
       if (context) {
         canvasRef.current.addEventListener("mousedown", handleMouseDown);
         canvasRef.current.addEventListener("mouseup", handleMouseUp);
@@ -88,19 +94,17 @@ const Canvas = () => {
       }
     });
 
-    socket.on("make_user_pick_new_room_msg", () => {
-      displayPopup();
-    });
+
 
     socket.on("canvas_clear", () => {
       clearCanvas();
     });
 
     socket.on("start_new_game", () => {
-      console.log("Send new game to server");
+      console.log("Received start new game");
       socket.emit("gameStart");
       setSuccessAlert(true);
-    });
+    }, [context]);
 
     function handleMouseDown(evt) {
       mouseDown = true;
@@ -135,6 +139,7 @@ const Canvas = () => {
         let canvas_mouse_coordinates = {
           start: start,
           end: end,
+          color: color
         };
 
         socket.emit("canvas_mouse_co-ordinates", canvas_mouse_coordinates);
@@ -167,13 +172,18 @@ const Canvas = () => {
         canvasRef.current.removeEventListener("mousemove", handleMouseMove);
       }
     };
-  }, [context]);
+  });
+
+  socket.on("make_user_pick_new_room_msg", () => {
+    console.log("Being made to pick new room message from server")
+    togglePopup();
+  });
 
   function drawLine(context, coordinates) {
     context.beginPath();
     context.moveTo(coordinates.start.x, coordinates.start.y);
     context.lineTo(coordinates.end.x, coordinates.end.y);
-    context.strokeStyle = `#000000`;
+    context.strokeStyle = coordinates.color.hex;
     context.lineWidth = 3;
     context.stroke();
     context.closePath();
@@ -184,18 +194,20 @@ const Canvas = () => {
     clearCanvas();
   };
 
-  const displayPopup = () => {
-    var secret = prompt("Please enter the word people will have to guess!:");
-    if (secret == null || secret == "") {
+  const displayPopup = (event) => {
+    event.preventDefault()
+    if (guessWord == null || guessWord == "") {
       console.log("Game not started, user did not set word");
     } else {
-      socket.emit("setRoomDrawMessage", secret);
+      console.log("Sending room message")
+      socket.emit("setRoomDrawMessage", guessWord);
+      togglePopup()
     }
   };
 
   const startGame = () => {
     if (!forbidStartGame) {
-      displayPopup();
+      togglePopup();
     }
   };
 
@@ -218,18 +230,19 @@ const Canvas = () => {
     setSuccessAlert(false);
   };
 
+  const togglePopup = () => {
+    console.log(showPopup)
+    if (showPopup) {
+      console.log("Hiding popup")
+      setShowpopup(false)
+    } else {
+      console.log("Showing popup")
+      setShowpopup(true)
+    }
+  } 
+
   return (
-    <div className="canvasContainer">
-      <canvas
-        id="canvas"
-        ref={canvasRef}
-        width={500}
-        height={500}
-        style={{
-          border: "2px solid #000",
-          marginTop: 10,
-        }}
-      ></canvas>
+    <div id="canvasContainer" className="canvasContainer">
       <div className="buttonContainer">
         <Button
           variant="contained"
@@ -242,9 +255,21 @@ const Canvas = () => {
         </Button>
         <Button
           variant="contained"
+          color="primary"
+          startIcon={<BrushIcon />}
+        >
+          <InputColor
+            initialValue="#000000"
+            onChange={setColor}
+            placement="right"
+          />
+        </Button>
+        <Button
+          variant="contained"
           color="secondary"
           startIcon={<DeleteIcon />}
-          onClick={clearCanvasInformRoom}
+          // onClick={clearCanvasInformRoom}
+          onClick={togglePopup}
         >
           Clear Canvas
         </Button>
@@ -253,11 +278,26 @@ const Canvas = () => {
           color="default"
           startIcon={<VideogameAssetIcon />}
           onClick={endGame}
-          disabled={!forbidStartGame}
-        >
+          disabled={!forbidStartGame}>
           End game
         </Button>
       </div>
+      {showPopup ?
+        <Popup
+          text='Pick a new word to guess!'
+          setWord={displayPopup}
+          closePopup={togglePopup}
+          guessWord={guessWord}
+          setGuessWord={setGuessWord}
+        />
+        : null
+      }
+        <canvas
+          id="canvas"
+          ref={canvasRef}
+          width="770"
+          height="600"
+        ></canvas>
       {/*<div className="inputContainer">
         <Input
           message={guessContent}
@@ -271,7 +311,7 @@ const Canvas = () => {
           autoHideDuration={3000}
           onClose={handleAlertClose}
         >
-        {/* severity includes: error, success, info */}
+          {/* severity includes: error, success, info */}
           <Alert onClose={handleAlertClose} severity="success">
             CORRECT!
           </Alert>

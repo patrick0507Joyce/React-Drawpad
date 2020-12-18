@@ -1,0 +1,7 @@
+#popup {
+    position: absolute;
+    z-index: 9999;
+    background-color: #212529;
+    color: white;
+    margin: 8%;
+}

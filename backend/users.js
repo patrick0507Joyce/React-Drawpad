@@ -12,7 +12,7 @@ const addUser = ({ id, name, room, hadTurn, hasGuessed, isDrawing}) => {
     const user = {id, name, room, hadTurn, hasGuessed, isDrawing};
 
     users.push(user);
-    console.log(users)
+    console.log("Adding user!: ", users)
     return {user};
 }
 
@@ -30,32 +30,35 @@ const getUser = (id) => {
 const setUserHasGuessed = (id, bool) => {
     const index = users.findIndex((user) => user.id === id);
     users[index].hasGuessed = bool;
-    console.log(users[index])
+    // console.log(users[index])
 };
 
 const userHadTurn = (id) => {
-    console.log(id)
+    // console.log(id)
     const index = users.findIndex((user) => user.id === id);
-    console.log(index)
+    // console.log(index)
     users[index].hadTurn = true;
-    console.log("User should have had turn", users)
+    // console.log("User should have had turn", users)
 };
 
 const pickUserWhoHasntGone = (room) => {
     var user = users.find((user) => user.room == room && user.hadTurn == false);
-    console.log("This player hasn't gone yet", user)
+    // console.log("This player hasn't gone yet", user)
     return user
 };
 
 const clearHadTurnForUsersInRoom = (room) => {
     var smth = users.filter(user => user.room == room)
+    console.log("Users to be cleared of turns:", users)
     smth.forEach(user => {
-        removeUser(user.id)
-        user.hadTurn = false;
-        addUser(user)
+        console.log("tempUser is: ", user)
+        var index = users.findIndex((tempUser) => tempUser.id = user.id)
+        console.log(index)
+        users[index].hadTurn = false;
     });
-
 };
+
+
 
 const setUserIsDrawing = (id, bool) => {
     const index = users.findIndex((user) => user.id === id);

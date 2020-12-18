@@ -32,7 +32,7 @@ const Chat = ({room, name}) => {
 
     return(
         <div className="outerContainer">
-            <div className="container">
+            <div className="containerChat">
                 <InfoBar room={ room }/>
                 <Messages messages={ messages } name={ name }/>
                 <Input message={ message } setMessage={setMessage} sendMessage={SendMessage} />

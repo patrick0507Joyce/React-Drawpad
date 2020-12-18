@@ -6,6 +6,8 @@ const addRoom = ({ id, msg }) => {
     if (existingRoom) {
         console.log("Room has msg set before, removing")
         removeRoomById(id)
+    } else {
+        console.log("Room msg not set")
     }
     
     const room = {id, msg};

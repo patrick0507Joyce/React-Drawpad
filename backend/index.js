@@ -83,7 +83,7 @@ io.on("connection", (socket) => {
             text: `Everyone guessed the word!`,
           });
           io.in(user.room).emit("canvas_clear");
-          pickNextPlayer(user);
+          pickNextPlayer(user, socket);
         }
         callback();
       } else {
@@ -102,43 +102,24 @@ io.on("connection", (socket) => {
     addRoom({ id: user.room, msg });
     console.log("Room msg set to: ", msg);
     console.log(user.id);
-    socket.emit("start_new_game");
-    console.log("Sent new game emit");
+    startGame(socket)
   });
 
   socket.on("gameStart", () => {
     console.log("GAME START CALLED");
     console.log(socket.id);
-    const user = getUser(socket.id);
-    console.log(user);
-    const usersInRoom = getUsersInRoom(user.room);
-    console.log("Users in room: ", usersInRoom);
-    for (let i = 0; i < usersInRoom.length; i++) {
-      var userID = usersInRoom[i].id;
-      // console.log("User ID:")
-      // console.log(userID)
-      if (userID != user.id) {
-        io.to(userID).emit("blockDrawing");
-        setUserIsDrawing(userID, false);
-      } else {
-        io.to(userID).emit("enableDrawing");
-        setUserIsDrawing(userID, true);
-      }
-      setUserHasGuessed(userID, false);
-    }
-    io.in(user.room).emit("message", {
-      user: "admin",
-      text: `${user.name} is now drawing!`,
-    });
-
+    startGame(socket)
     // broadcast.to(user.room).emit('gameStart', {  });
   });
 
   socket.on("canvas_mouse_co-ordinates", (coordinates) => {
     const user = getUser(socket.id);
-    socket.broadcast
-      .to(user.room)
-      .emit("incoming-canvas-coordinates", coordinates);
+    // console.log("Sending mouse coordinates from user: ", user.id)
+    if (user) {
+      socket.broadcast
+        .to(user.room)
+        .emit("incoming-canvas-coordinates", coordinates);
+    }
   });
 
   socket.on("canvas_clear", () => {
@@ -174,23 +155,54 @@ function checkIfEveryoneHasGuessed(room) {
       userHadTurn(users[i].id);
     }
   }
-  console.log("User length is: ", users.length);
+  // console.log("User length is: ", users.length);
   if (counter == users.length - 1) {
-    console.log("Everyone has guessed!");
+    // console.log("Everyone has guessed!");
     return true;
   } else {
     return false;
   }
 }
 
-function pickNextPlayer(user) {
+function startGame(socket) {
+  const user = getUser(socket.id);
+  // console.log(user);
+  socket.broadcast.to(user.room).emit("canvas_clear");
+  const usersInRoom = getUsersInRoom(user.room);
+  // console.log("Users in room: ", usersInRoom);
+  for (let i = 0; i < usersInRoom.length; i++) {
+    var userID = usersInRoom[i].id;
+    // console.log("User ID:")
+    // console.log(userID)
+    if (userID != user.id) {
+      io.to(userID).emit("blockDrawing");
+      console.log("Blocking drawing for user: ", userID)
+      setUserIsDrawing(userID, false);
+    } else {
+      console.log("Enabling drawing for user: ", userID)
+      io.to(userID).emit("enableDrawing");
+      setUserIsDrawing(userID, true);
+    }
+    setUserHasGuessed(userID, false);
+  }
+  io.in(user.room).emit("message", {
+    user: "admin",
+    text: `${user.name} is now drawing!`,
+  });
+}
+
+function pickNextPlayer(user, socket) {
   var new_user = pickUserWhoHasntGone(user.room);
   if (new_user) {
-    io.to(new_user.id).emit("make_user_pick_new_room_msg");
+    console.log("Making user pick new room msg")
+    console.log("Picked: ", new_user)
+    var id = new_user.id;
+    console.log(id)
+    io.to(id).emit("make_user_pick_new_room_msg");
   } else {
     console.log("All users have gone, clear them");
     clearHadTurnForUsersInRoom(user.room);
-    pickNextPlayer(user);
+    pickNextPlayer(user, socket);
   }
 }
 
