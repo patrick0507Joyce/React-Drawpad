@@ -167,7 +167,7 @@ function checkIfEveryoneHasGuessed(room) {
 function startGame(socket) {
   const user = getUser(socket.id);
   // console.log(user);
-  socket.broadcast.to(user.room).emit("canvas_clear");
+  io.in(user.room).emit("canvas_clear");
   const usersInRoom = getUsersInRoom(user.room);
   // console.log("Users in room: ", usersInRoom);
   for (let i = 0; i < usersInRoom.length; i++) {
