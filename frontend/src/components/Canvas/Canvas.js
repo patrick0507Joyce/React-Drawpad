@@ -268,8 +268,7 @@ const Canvas = () => {
           variant="contained"
           color="secondary"
           startIcon={<DeleteIcon />}
-          // onClick={clearCanvasInformRoom}
-          onClick={togglePopup}
+          onClick={clearCanvasInformRoom}
         >
           Clear Canvas
         </Button>
