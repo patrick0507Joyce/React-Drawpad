@@ -1,17 +1,25 @@
-import React, { useState, useEffect, useRef, useCallback, componentDidMount } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  componentDidMount,
+} from "react";
 import InputColor from "react-input-color";
 import Button from "@material-ui/core/Button";
 import DeleteIcon from "@material-ui/icons/Delete";
 import VideogameAssetIcon from "@material-ui/icons/VideogameAsset";
-import BrushIcon from '@material-ui/icons/Brush';
+import BrushIcon from "@material-ui/icons/Brush";
 import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
 
 import socket from "../socket";
 import Popup from "../Popup/popup";
 import Input from "../Input/Input";
+import Board from './Notes/Board/Board';
 
 import "./Canvas.css";
+import { Typography } from "@material-ui/core";
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -22,7 +30,7 @@ const Canvas = () => {
   const [context, setContext] = useState(null);
   const [showPopup, setShowpopup] = useState(false);
   const [guessWord, setGuessWord] = useState("");
-  const [color, setColor] = useState('#00000');
+  const [color, setColor] = useState("#00000");
   const [forbidStartGame, setForbidStartGameStatus] = useState(false);
   const [guessContent, setGuessContent] = useState([]);
   const [successAlert, setSuccessAlert] = useState(false);
@@ -37,7 +45,7 @@ const Canvas = () => {
         canvasRef.current.height
       );
     }
-  }
+  };
 
   useEffect(() => {
     let blockDrawing = false;
@@ -94,17 +102,19 @@ const Canvas = () => {
       }
     });
 
-
-
     socket.on("canvas_clear", () => {
       clearCanvas();
     });
 
-    socket.on("start_new_game", () => {
-      console.log("Received start new game");
-      socket.emit("gameStart");
-      setSuccessAlert(true);
-    }, [context]);
+    socket.on(
+      "start_new_game",
+      () => {
+        console.log("Received start new game");
+        socket.emit("gameStart");
+        setSuccessAlert(true);
+      },
+      [context]
+    );
 
     function handleMouseDown(evt) {
       mouseDown = true;
@@ -139,7 +149,7 @@ const Canvas = () => {
         let canvas_mouse_coordinates = {
           start: start,
           end: end,
-          color: color
+          color: color,
         };
 
         socket.emit("canvas_mouse_co-ordinates", canvas_mouse_coordinates);
@@ -175,7 +185,7 @@ const Canvas = () => {
   });
 
   socket.on("make_user_pick_new_room_msg", () => {
-    console.log("Being made to pick new room message from server")
+    console.log("Being made to pick new room message from server");
     togglePopup();
   });
 
@@ -195,13 +205,13 @@ const Canvas = () => {
   };
 
   const displayPopup = (event) => {
-    event.preventDefault()
+    event.preventDefault();
     if (guessWord == null || guessWord == "") {
       console.log("Game not started, user did not set word");
     } else {
-      console.log("Sending room message")
+      console.log("Sending room message");
       socket.emit("setRoomDrawMessage", guessWord);
-      togglePopup()
+      togglePopup();
     }
   };
 
@@ -231,15 +241,15 @@ const Canvas = () => {
   };
 
   const togglePopup = () => {
-    console.log(showPopup)
+    console.log(showPopup);
     if (showPopup) {
-      console.log("Hiding popup")
-      setShowpopup(false)
+      console.log("Hiding popup");
+      setShowpopup(false);
     } else {
-      console.log("Showing popup")
-      setShowpopup(true)
+      console.log("Showing popup");
+      setShowpopup(true);
     }
-  } 
+  };
 
   return (
     <div id="canvasContainer" className="canvasContainer">
@@ -253,11 +263,7 @@ const Canvas = () => {
         >
           Start game
         </Button>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<BrushIcon />}
-        >
+        <Button variant="contained" color="primary" startIcon={<BrushIcon />}>
           <InputColor
             initialValue="#000000"
             onChange={setColor}
@@ -277,26 +283,31 @@ const Canvas = () => {
           color="default"
           startIcon={<VideogameAssetIcon />}
           onClick={endGame}
-          disabled={!forbidStartGame}>
+          disabled={!forbidStartGame}
+        >
           End game
         </Button>
       </div>
-      {showPopup ?
+      {showPopup ? (
         <Popup
-          text='Pick a new word to guess!'
+          text="Pick a new word to guess!"
           setWord={displayPopup}
           closePopup={togglePopup}
           guessWord={guessWord}
           setGuessWord={setGuessWord}
         />
-        : null
-      }
-        <canvas
-          id="canvas"
-          ref={canvasRef}
-          width="770"
-          height="600"
-        ></canvas>
+      ) : null}
+      <div className="notesHeaderContainer">
+        <Typography variant="h6" align="center">
+          Add New Notes
+        </Typography>
+      </div>
+      <canvas className="canvas" ref={canvasRef} width="775" height="300" />
+      <div className="notesContainer">
+        <Board count={10}/>
+      </div>
+      
+
       {/*<div className="inputContainer">
         <Input
           message={guessContent}

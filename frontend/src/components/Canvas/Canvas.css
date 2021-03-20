@@ -21,3 +21,17 @@ canvas {
 .inputContainer {
   margin: 3%;
 }
+
+.notesHeaderContainer {
+  height: 50px;
+  background-color:#1AB188;
+  color: white;
+  cursor: pointer;
+}
+
+.notesContainer {
+  width: 775;
+  height: 600;
+  background-color:rgba(96, 22, 22, 0.8);
+  color: black;
+}

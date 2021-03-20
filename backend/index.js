@@ -19,7 +19,7 @@ const {
 } = require("./users");
 const { addRoom, getRoom } = require("./room");
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 9999;
 
 const router = require("./router");
 

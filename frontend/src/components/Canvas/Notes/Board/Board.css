@@ -1,0 +1,75 @@
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:400,700');
+
+div.board {
+    background-color: #262626;
+    width: 775px;
+    height: 300px;
+    background: #262626;
+
+}
+
+div.note {
+    height: 100px;
+    width: 100px;
+    background-color: yellow;
+    margin: 2px 0;
+    position: absolute;
+    cursor: -webkit-grab;
+    -webkit-box-shadow: 5px 5px 15px 0 rgba(0, 0, 0, .2);
+    box-shadow: 5px 5px 15px 0 rgba(0, 0, 0, .2);
+}
+
+div.note:active {
+    cursor: -webkit-grabbing;
+}
+
+div.note p {
+    font-size: 10px;
+    padding: 2px;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 700;
+}
+
+div.note:hover > span {
+    opacity: 1;
+}
+
+div.note > span {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    opacity: 0;
+    transition: opacity .25s linear;
+}
+
+div.note button {
+    margin: 2px;
+}
+
+div.note > textarea {
+    height: 75%;
+    background: rgba(255, 255, 255, .5);
+}
+
+div.board button {
+  color: #fff;
+  font-size: 14px;
+  box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.55);
+}
+
+#add {
+  background-color: #5cb85c;
+  height: 3em;
+}
+
+#edit {
+  background-color: #337ab7;
+}
+
+#save {
+  background-color: #5cb85c;
+}
+
+#remove {
+  background-color: #d9534f;
+}
