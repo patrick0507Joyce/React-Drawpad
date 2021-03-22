@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Note from "../Note/Note";
-import FaPlus from "react-icons/lib/fa/plus";
+import { GrAdd } from "react-icons/gr";
 import "./Board.css";
 import socket from "../../../socket";
 
@@ -11,24 +11,22 @@ const Board = ({ count }) => {
   const [updatingStatus, setUpdatingStatus] = useState(false);
 
   useEffect(() => {
-    socket.emit('requestNotes');
+    socket.emit("requestNotes");
     //initilize notes on connection
     socket.on("notesData", (updatedNotes) => {
       console.log("on connection notes", updatedNotes);
       setNotes(updatedNotes.notes);
-    })
+    });
 
     socket.on("incoming-notes", (updatedNotes) => {
       console.log("incoming notes", updatedNotes);
       setNotes(updatedNotes);
-    })
-      
+    });
   }, []);
-
 
   useEffect(() => {
     if (updatingStatus) {
-      console.log(notes.length);    
+      console.log(notes.length);
       socket.emit("sync_notes", notes, (response) => {
         console.log(response.status); // ok
       });
@@ -47,9 +45,9 @@ const Board = ({ count }) => {
       noteText: noteText ? noteText : defaultNoteText,
       id: randomBetweenXY(0, 999999),
       coordinates: {
-        x:x,
-        y:y,
-      }
+        x: x,
+        y: y,
+      },
     };
     setNotes([...notes, newNote]);
     setUpdatingStatus(true);
@@ -105,7 +103,7 @@ const Board = ({ count }) => {
   return (
     <div className="board">
       <button onClick={() => addNote(defaultNoteText)} id="add">
-        <FaPlus />
+        <GrAdd />
       </button>
       {notes.map(getEachNote)}
     </div>
@@ -113,7 +111,6 @@ const Board = ({ count }) => {
 };
 
 export default Board;
-
 
 /**
  let noteCount = count ? count : 10;
