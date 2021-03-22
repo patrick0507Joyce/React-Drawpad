@@ -6,18 +6,18 @@ import FaFloppyO from "react-icons/lib/fa/floppy-o";
 import socket from "../../../socket";
 import "./Note.css";
 
-const Note = ({ index, styles, noteContent, removeNote, updateNoteText, updateNoteCoordinates }) => {
+const Note = ({ index, coordinate, noteContent, removeNote, updateNoteText, updateNoteCoordinates }) => {
   const [editingStatus, setEditingStatus] = useState(false);
   const [textValue, setTextValue] = useState(noteContent);
-  const [coordinates, setCoordinates] = useState({ x:0, y:0 });
-  
+  const [coordinates, setCoordinates] = useState(coordinate);
+
   useEffect(() => {
     socket.on("incoming-notes", (updatedNotes) => {
       console.log("incoming notes", updatedNotes);
       updatedNotes.map((updatedNote) => {
         if (updatedNote.id === index) {
           setTextValue(updatedNote.noteText);
-          setCoordinates(updatedNote.styles);
+          setCoordinates(updatedNote.coordinates);
         }
       })
     })

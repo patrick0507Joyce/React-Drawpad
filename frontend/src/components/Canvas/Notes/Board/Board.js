@@ -41,12 +41,12 @@ const Board = ({ count }) => {
   };
 
   const addNote = (noteText) => {
-    let x = randomBetweenXY(600, 1200);
+    let x = randomBetweenXY(0, 200);
     let y = randomBetweenXY(0, 200);
     let newNote = {
       noteText: noteText ? noteText : defaultNoteText,
       id: randomBetweenXY(0, 999999),
-      styles: {
+      coordinates: {
         x:x,
         y:y,
       }
@@ -72,7 +72,7 @@ const Board = ({ count }) => {
     console.log("updating item codes at index", noteId, coordinates);
     let updatedNotes = notes.map((note) => {
       if (note.id === noteId) {
-        note.styles = coordinates;
+        note.coordinates = coordinates;
       }
       return note;
     });
@@ -91,7 +91,7 @@ const Board = ({ count }) => {
     return (
       <Note
         index={note.id}
-        styles={note.styles}
+        coordinate={note.coordinates}
         noteContent={note.noteText}
         updateNoteText={updateNoteText}
         updateNoteCoordinates={updateNoteCoordinates}
@@ -128,7 +128,7 @@ export default Board;
           let newNote = {
             noteText: sentence.substring(0, 25),
             id: index,
-            styles: `transform: translate(${left}, ${top})`
+            coordinates: `transform: translate(${left}, ${top})`
           };
           noteArray.push(newNote);
         });
