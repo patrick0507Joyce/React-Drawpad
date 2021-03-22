@@ -131,7 +131,7 @@ io.on("connection", (socket) => {
   socket.on("canvas_clear", () => {
     const user = getUser(socket.id);
     socket
-    //.to(user.room)
+    .to(user.room)
     .emit("canvas_clear");
   });
 
