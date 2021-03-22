@@ -1,96 +1,114 @@
-import React, { Component } from 'react'
-import FaPencil from 'react-icons/lib/fa/pencil'
-import FaTrash from 'react-icons/lib/fa/trash'
-import FaFloppyO from 'react-icons/lib/fa/floppy-o'
-import './Note.css';
+import React, { useState, useEffect } from "react";
+import Draggable from 'react-draggable';
+import FaPencil from "react-icons/lib/fa/pencil";
+import FaTrash from "react-icons/lib/fa/trash";
+import FaFloppyO from "react-icons/lib/fa/floppy-o";
+import socket from "../../../socket";
+import "./Note.css";
 
-class Note extends Component {
-	constructor(props) {
-		super(props)
-		this.state = {
-			editing: false
-		}
-		this.edit = this.edit.bind(this)
-		this.remove = this.remove.bind(this)
-		this.save = this.save.bind(this)
-		this.renderForm = this.renderForm.bind(this)
-        this.renderDisplay = this.renderDisplay.bind(this)
-        this.randomBetween = this.randomBetween.bind(this)
-	}
-	edit() {
-		this.setState({
-			editing: true
-		})
-	}
-
-    componentWillMount() {
-        this.style = {
-            //right: this.randomBetween(0, window.innerWidth - 150, 'px'),
-            //top: this.randomBetween(0, window.innerHeight - 150, 'px'),
-            left: this.randomBetween(600, 1200, 'px'),
-            bottom: this.randomBetween(200, 600, 'px'),
-            transform: `rotate(${this.randomBetween(-25, 25, 'deg')})`
+const Note = ({ index, styles, noteContent, removeNote, updateNoteText, updateNoteCoordinates }) => {
+  const [editingStatus, setEditingStatus] = useState(false);
+  const [textValue, setTextValue] = useState(noteContent);
+  const [coordinates, setCoordinates] = useState({ x:0, y:0 });
+  
+  useEffect(() => {
+    socket.on("incoming-notes", (updatedNotes) => {
+      console.log("incoming notes", updatedNotes);
+      updatedNotes.map((updatedNote) => {
+        if (updatedNote.id === index) {
+          setTextValue(updatedNote.noteText);
+          setCoordinates(updatedNote.styles);
         }
-    }
+      })
+    })
+  }, []);
 
-    randomBetween(x, y, s) {
-        return x + Math.ceil(Math.random() * (y-x)) + s
-    }
+  const onEditNote = () => {
+    setEditingStatus(true);
+  };
 
-    componentDidUpdate() {
-        var textArea
-        if(this.state.editing) {
-            textArea = this._newText
-            textArea.focus()
-            textArea.select()
-        }
-    }
+  const onRemoveNote = () => {
+    removeNote(index);
+  };
 
-    shouldComponentUpdate(nextProps, nextState) {
-        return (
-            this.props.children !== nextProps.children || this.state !== nextState
-        )
-    }
+  const handleTextValueChange = (event) => {
+    event.preventDefault();
+    setTextValue(event.target.value);
+  }
 
-	remove() {
-		this.props.onRemove(this.props.index)
-	}
+  const onSaveNote = (event) => {
+    //TODO: changevalue
+    console.log({noteContent});
+    updateNoteText(textValue, index);
+    setEditingStatus(false);
+  };
 
-	save(e) {
-        e.preventDefault()
-        this.props.onChange(this._newText.value, this.props.index)
-        this.setState({
-            editing: false
-        })
-	}
+  const eventControl = (event, infor) => {
+    //event.preventDefault();
+    //console.log("Event name", event.type);
+  }
 
-	renderForm() {
-		return (
-			<div className="note" style={this.style}>
-				<form onSubmit={this.save}>
-					<textarea ref={input => this._newText = input}
-                            defaultValue={this.props.children}/>
-					<button id="save"><FaFloppyO /></button>
-				</form>
-			</div>
-		)
-	}
+  const handleDragStart = (event) => {
+    console.log("handle drag start");
+  }
 
-	renderDisplay() {
-		return (
-			<div className="note" style={this.style}>
-				<p>{this.props.children}</p>
-				<span>
-					<button onClick={this.edit} id="edit"><FaPencil /></button>
-					<button onClick={this.remove} id="remove"><FaTrash /></button>
-				</span>
-			</div>
-		)
-	}
-	render() {
-		return this.state.editing ? this.renderForm() : this.renderDisplay()
-	}
+  const handleDragStop = (event, data) => {
+    console.log("handle drag stop");
+    console.log(data.x, data.y);
+    
+    setCoordinates({
+      x: data.x,
+      y: data.y
+    });
+    updateNoteCoordinates({
+      x: data.x,
+      y: data.y
+    }, index);
 
-}
 
-export default Note
+  }
+
+  if (editingStatus) {
+    return (
+      <Draggable
+        onStart={handleDragStart}
+        onStop={handleDragStop}
+        position={coordinates}   
+      >
+        <div className="note">
+          <form onSubmit={onSaveNote}>
+            <input
+              value={textValue}
+              onChange={handleTextValueChange}
+            />
+            <button type="submit" id="save">
+              <FaFloppyO />
+            </button>
+          </form>
+        </div>
+      </Draggable>
+    );
+  } else {
+    return (
+        <Draggable
+        onStart={handleDragStart}
+        onStop={handleDragStop}   
+        position={coordinates}   
+      >
+      <div className="note">
+        <p>{textValue}</p>
+        <span>
+          <button onClick={onEditNote} id="edit">
+            <FaPencil />
+          </button>
+          <button onClick={onRemoveNote} id="remove">
+            <FaTrash />
+          </button>
+        </span>
+      </div>
+      </Draggable>
+    );
+  }
+};
+
+export default Note;

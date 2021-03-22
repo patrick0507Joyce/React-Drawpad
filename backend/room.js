@@ -1,7 +1,6 @@
 const rooms = [];
 
 const addRoom = ({ id, msg }) => {
-
     const existingRoom = rooms.find((room) => room.id == id);
     if (existingRoom) {
         console.log("Room has msg set before, removing")
@@ -28,4 +27,4 @@ const getRoom = (id) => {
     return rooms.find(rooms => rooms.id == id)
 };
 
-module.exports = { addRoom, getRoom};
+module.exports = { addRoom, getRoom };

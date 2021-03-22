@@ -3,7 +3,6 @@ import React, {
   useEffect,
   useRef,
   useCallback,
-  componentDidMount,
 } from "react";
 import InputColor from "react-input-color";
 import Button from "@material-ui/core/Button";
@@ -304,7 +303,7 @@ const Canvas = () => {
       </div>
       <canvas className="canvas" ref={canvasRef} width="775" height="300" />
       <div className="notesContainer">
-        <Board count={10}/>
+        <Board/>
       </div>
       
 

@@ -18,6 +18,7 @@ const {
   clearHadTurnForUsersInRoom,
 } = require("./users");
 const { addRoom, getRoom } = require("./room");
+const { updateNotes, getNotes } = require("./notes");
 
 const PORT = process.env.PORT || 9999;
 
@@ -51,13 +52,18 @@ io.on("connection", (socket) => {
     });
 
     socket.broadcast
-      .to(user.room)
+      //.to(user.room)
       .emit("message", { user: "admin", text: `${user.name} has joined` });
 
     io.to(user.room).emit("roomData", {
       room: user.room,
       users: getUsersInRoom(user.room),
     });
+
+    io.to(user.id).emit("notesData", {
+      notes: getNotes()
+    });
+    
     //no error's callback
     callback();
   });
@@ -117,15 +123,33 @@ io.on("connection", (socket) => {
     // console.log("Sending mouse coordinates from user: ", user.id)
     if (user) {
       socket.broadcast
-        .to(user.room)
+        //.to(user.room)
         .emit("incoming-canvas-coordinates", coordinates);
     }
   });
 
   socket.on("canvas_clear", () => {
     const user = getUser(socket.id);
-    socket.broadcast.to(user.room).emit("canvas_clear");
+    socket
+    //.to(user.room)
+    .emit("canvas_clear");
   });
+
+
+  socket.on('sync_notes', (notes, callback) => {
+    console.log("recevied notes length",notes.length);
+    updateNotes(notes);
+    const latestNotes = getNotes();
+    console.log("recevied notes length",latestNotes);
+    const user = getUser(socket.id);
+    //console.log("user room info", user);
+    callback({status: "ok"});
+    //TODO: fix the user.room undefined problem
+    socket
+    //.to(user.room)
+    .broadcast
+    .emit("incoming-notes", latestNotes);
+  })
 
   socket.on("disconnect", () => {
     console.log("we have lost conenction!!");

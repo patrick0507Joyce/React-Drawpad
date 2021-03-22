@@ -29,6 +29,7 @@ const Room = ({ location }) => {
 
 		return () => {
 			socket.emit('disconnect');
+			socket.disconnect();
 			socket.off();
 		}
 	}, [location.search]);

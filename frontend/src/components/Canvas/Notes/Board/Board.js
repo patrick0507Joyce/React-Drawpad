@@ -1,88 +1,137 @@
-import React, { Component } from 'react'
-import Note from '../Note/Note'
-import FaPlus from 'react-icons/lib/fa/plus'
-import './Board.css';
+import React, { useState, useEffect } from "react";
+import Note from "../Note/Note";
+import FaPlus from "react-icons/lib/fa/plus";
+import "./Board.css";
+import socket from "../../../socket";
 
-class Board extends Component {
-	constructor(props) {
-		super(props)
-		this.state = {
-			notes: []
-		}
-		this.add = this.add.bind(this)
-		this.eachNote = this.eachNote.bind(this)
-		this.update = this.update.bind(this)
-		this.remove = this.remove.bind(this)
-		this.nextId = this.nextId.bind(this)
-	}
+const defaultNoteText = "A New Sticky Note";
 
-	componentWillMount() {
-		var self = this
-    let noteCount = this.props.count != null ? this.props.count : 10;
-		if(noteCount) {
-			fetch(`https://baconipsum.com/api/?type=all-meat&sentences=${noteCount}`)
-				.then(response => response.json())
-				.then(json => json[0]
-								.split('. ')
-								.forEach(sentence => self.add(sentence.substring(0, 25))))
-		}
-	}
+const Board = ({ count }) => {
+  const [notes, setNotes] = useState([]);
+  const [updatingStatus, setUpdatingStatus] = useState(false);
 
-	add(text) {
-		this.setState(prevState => ({
-			notes: [
-				...prevState.notes,
-				{
-					id: this.nextId(),
-					note: text
-				}
-			]
-		}))
-	}
+  useEffect(() => {
+    socket.emit('requestNotes');
+    //initilize notes on connection
+    socket.on("notesData", (updatedNotes) => {
+      console.log("on connection notes", updatedNotes);
+      setNotes(updatedNotes.notes);
+    })
 
-	nextId() {
-		this.uniqueId = this.uniqueId || 0
-		return this.uniqueId++
-	}
+    socket.on("incoming-notes", (updatedNotes) => {
+      console.log("incoming notes", updatedNotes);
+      setNotes(updatedNotes);
+    })
+      
+  }, []);
 
-	update(newText, i) {
-		console.log('updating item at index', i, newText)
-		this.setState(prevState => ({
-			notes: prevState.notes.map(
-				note => (note.id !== i) ? note : {...note, note: newText}
-			)
-		}))
-	}
 
-	remove(id) {
-		console.log('removing item at', id)
-		this.setState(prevState => ({
-			notes: prevState.notes.filter(note => note.id !== id)
-		}))
-	}
+  useEffect(() => {
+    if (updatingStatus) {
+      console.log(notes.length);    
+      socket.emit("sync_notes", notes, (response) => {
+        console.log(response.status); // ok
+      });
+      setUpdatingStatus(false);
+    }
+  }, [updatingStatus]);
 
-	eachNote(note, i) {
-		return (
-			<Note key={note.id}
-				  index={note.id}
-				  onChange={this.update}
-				  onRemove={this.remove}>
-				  {note.note}
-		    </Note>
-		)
-	}
+  const randomBetweenXY = (x, y) => {
+    return x + Math.ceil(Math.random() * (y - x));
+  };
 
-	render() {
-		return (
-			<div className="board">
-				{this.state.notes.map(this.eachNote)}
-				<button onClick={this.add.bind(null, "New Sticky Note")}
-						id="add">
-					<FaPlus />
-				</button>
-			</div>
-		)
-	}
-}
+  const addNote = (noteText) => {
+    let x = randomBetweenXY(600, 1200);
+    let y = randomBetweenXY(0, 200);
+    let newNote = {
+      noteText: noteText ? noteText : defaultNoteText,
+      id: randomBetweenXY(0, 999999),
+      styles: {
+        x:x,
+        y:y,
+      }
+    };
+    setNotes([...notes, newNote]);
+    setUpdatingStatus(true);
+  };
 
-export default Board
+  const updateNoteText = (newNoteText, noteId) => {
+    console.log("updating item at index", noteId, newNoteText);
+    let updatedNotes = notes.map((note) => {
+      if (note.id === noteId) {
+        note.noteText = newNoteText;
+      }
+      return note;
+    });
+
+    setNotes(updatedNotes);
+    setUpdatingStatus(true);
+  };
+
+  const updateNoteCoordinates = (coordinates, noteId) => {
+    console.log("updating item codes at index", noteId, coordinates);
+    let updatedNotes = notes.map((note) => {
+      if (note.id === noteId) {
+        note.styles = coordinates;
+      }
+      return note;
+    });
+
+    setNotes(updatedNotes);
+    setUpdatingStatus(true);
+  };
+
+  const removeNote = (id) => {
+    let afterRemovingNotes = notes.filter((note) => note.id !== id);
+    setNotes(afterRemovingNotes);
+    setUpdatingStatus(true);
+  };
+
+  const getEachNote = (note) => {
+    return (
+      <Note
+        index={note.id}
+        styles={note.styles}
+        noteContent={note.noteText}
+        updateNoteText={updateNoteText}
+        updateNoteCoordinates={updateNoteCoordinates}
+        removeNote={removeNote}
+      >
+        {note.noteText}
+      </Note>
+    );
+  };
+
+  return (
+    <div className="board">
+      <button onClick={() => addNote(defaultNoteText)} id="add">
+        <FaPlus />
+      </button>
+      {notes.map(getEachNote)}
+    </div>
+  );
+};
+
+export default Board;
+
+
+/**
+ let noteCount = count ? count : 10;
+    let noteArray = [];
+    fetch(`https://baconipsum.com/api/?type=all-meat&sentences=${noteCount}`)
+      .then((response) => response.json())
+      .then((json) => {
+        json[0].split(". ").forEach((sentence, index) => {
+          let left = randomBetweenXY(600, 1200);
+          let top = randomBetweenXY(0, 200);
+
+          let newNote = {
+            noteText: sentence.substring(0, 25),
+            id: index,
+            styles: `transform: translate(${left}, ${top})`
+          };
+          noteArray.push(newNote);
+        });
+        //TODO: add in the future to initilize code
+        //setNotes(noteArray);
+ */
