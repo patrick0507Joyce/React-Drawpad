@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Draggable from 'react-draggable';
-import FaPencil from "react-icons/lib/fa/pencil";
-import FaTrash from "react-icons/lib/fa/trash";
-import FaFloppyO from "react-icons/lib/fa/floppy-o";
+import {BsPencilSquare, BsTrash} from "react-icons/bs";
+import {BiSave} from "react-icons/bi";
 import socket from "../../../socket";
 import "./Note.css";
 
@@ -82,7 +81,7 @@ const Note = ({ index, coordinate, noteContent, removeNote, updateNoteText, upda
               onChange={handleTextValueChange}
             />
             <button type="submit" id="save">
-              <FaFloppyO />
+              <BiSave />
             </button>
           </form>
         </div>
@@ -99,10 +98,10 @@ const Note = ({ index, coordinate, noteContent, removeNote, updateNoteText, upda
         <p>{textValue}</p>
         <span>
           <button onClick={onEditNote} id="edit">
-            <FaPencil />
+            <BsPencilSquare />
           </button>
           <button onClick={onRemoveNote} id="remove">
-            <FaTrash />
+            <BsTrash />
           </button>
         </span>
       </div>

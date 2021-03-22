@@ -122,8 +122,8 @@ io.on("connection", (socket) => {
     const user = getUser(socket.id);
     // console.log("Sending mouse coordinates from user: ", user.id)
     if (user) {
-      socket.broadcast
-        //.to(user.room)
+      socket
+        .to(user.room)
         .emit("incoming-canvas-coordinates", coordinates);
     }
   });

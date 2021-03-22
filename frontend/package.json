@@ -16,7 +16,7 @@
     "react-dom": "^17.0.1",
     "react-draggable": "^4.4.3",
     "react-emoji": "^0.5.0",
-    "react-icons": "^2.2.7",
+    "react-icons": "^4.2.0",
     "react-input-color": "^3.0.1",
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",

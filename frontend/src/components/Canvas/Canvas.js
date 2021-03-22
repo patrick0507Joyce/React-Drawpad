@@ -1,21 +1,17 @@
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  useCallback,
-} from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import InputColor from "react-input-color";
 import Button from "@material-ui/core/Button";
 import DeleteIcon from "@material-ui/icons/Delete";
 import VideogameAssetIcon from "@material-ui/icons/VideogameAsset";
 import BrushIcon from "@material-ui/icons/Brush";
+import { CgUndo } from "react-icons/cg";
 import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
 
 import socket from "../socket";
 import Popup from "../Popup/popup";
 import Input from "../Input/Input";
-import Board from './Notes/Board/Board';
+import Board from "./Notes/Board/Board";
 
 import "./Canvas.css";
 import { Typography } from "@material-ui/core";
@@ -33,6 +29,8 @@ const Canvas = () => {
   const [forbidStartGame, setForbidStartGameStatus] = useState(false);
   const [guessContent, setGuessContent] = useState([]);
   const [successAlert, setSuccessAlert] = useState(false);
+
+  let latestDrawActions = [];
 
   const clearCanvas = () => {
     if (context) {
@@ -76,7 +74,7 @@ const Canvas = () => {
 
     socket.on("incoming-canvas-coordinates", (incomingCoordinates) => {
       if (context) {
-        drawLine(context, incomingCoordinates);
+        drawLine(context, incomingCoordinates, incomingCoordinates['undo']);
       }
     });
 
@@ -116,6 +114,9 @@ const Canvas = () => {
     );
 
     function handleMouseDown(evt) {
+      //clear cache for last move
+      latestDrawActions = [];
+
       mouseDown = true;
 
       start = {
@@ -150,6 +151,8 @@ const Canvas = () => {
           end: end,
           color: color,
         };
+        //TODO:add each latest actions into the array
+        latestDrawActions.push(canvas_mouse_coordinates);
 
         socket.emit("canvas_mouse_co-ordinates", canvas_mouse_coordinates);
 
@@ -188,19 +191,40 @@ const Canvas = () => {
     togglePopup();
   });
 
-  function drawLine(context, coordinates) {
-    context.beginPath();
-    context.moveTo(coordinates.start.x, coordinates.start.y);
-    context.lineTo(coordinates.end.x, coordinates.end.y);
-    context.strokeStyle = coordinates.color.hex;
-    context.lineWidth = 3;
-    context.stroke();
-    context.closePath();
-  }
+  const drawLine = (context, coordinates, undoMode) => {
+    if (undoMode) {
+      console.log("undo");
+      context.beginPath();
+      context.moveTo(coordinates.start.x, coordinates.start.y);
+      context.lineTo(coordinates.end.x, coordinates.end.y);
+      context.strokeStyle = "#FFF";
+      context.lineWidth = 5;
+      context.stroke();
+      context.closePath();
+    } else {
+      console.log("drawing");
+      context.beginPath();
+      context.moveTo(coordinates.start.x, coordinates.start.y);
+      context.lineTo(coordinates.end.x, coordinates.end.y);
+      context.strokeStyle = coordinates.color.hex;
+      context.lineWidth = 1;
+      context.stroke();
+      context.closePath();
+    }
+  };
 
   const clearCanvasInformRoom = () => {
     socket.emit("canvas_clear");
     clearCanvas();
+  };
+
+  const handleUndoLastMove = () => {
+    latestDrawActions.map((actionCoordinate) => {
+      actionCoordinate['undo'] = true;
+      socket.emit("canvas_mouse_co-ordinates", actionCoordinate);
+      drawLine(context, actionCoordinate, true);
+    });
+    latestDrawActions = [];
   };
 
   const displayPopup = (event) => {
@@ -280,11 +304,10 @@ const Canvas = () => {
         <Button
           variant="contained"
           color="default"
-          startIcon={<VideogameAssetIcon />}
-          onClick={endGame}
-          disabled={!forbidStartGame}
+          startIcon={<CgUndo />}
+          onClick={handleUndoLastMove}
         >
-          End game
+          Undo Last Move
         </Button>
       </div>
       {showPopup ? (
@@ -303,9 +326,8 @@ const Canvas = () => {
       </div>
       <canvas className="canvas" ref={canvasRef} width="775" height="300" />
       <div className="notesContainer">
-        <Board/>
+        <Board />
       </div>
-      
 
       {/*<div className="inputContainer">
         <Input
