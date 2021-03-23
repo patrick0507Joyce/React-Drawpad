@@ -6,6 +6,33 @@ const http = require("http");
 require('dotenv').config()
 const spmAgent = require('spm-agent-nodejs')
 
+const cloudinary = require('cloudinary')
+const formData = require('express-form-data')
+const cors = require('cors')
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+})
+
+const app = express();
+
+app.use(cors()) 
+
+app.use(formData.parse())
+
+app.post('/image-upload', (req, res) => {
+  const values = Object.values(req.files)
+  const promises = values.map(image => {
+    console.log(image.path)
+    return cloudinary.uploader.upload(image.path);
+  })
+
+  Promise.all(promises)
+  .then(results => res.json(results))
+})
+
 const {
   addUser,
   removeUser,
@@ -18,13 +45,13 @@ const {
   clearHadTurnForUsersInRoom,
 } = require("./users");
 const { addRoom, getRoom } = require("./room");
-const { updateNotes, getNotes } = require("./notes");
+const { updateNotes, getNotes, updateImageNotes, getImageNotes } = require("./notes");
 
 const PORT = process.env.PORT || 9999;
 
 const router = require("./router");
 
-const app = express();
+
 const server = http.createServer(app);
 const io = socketio(server);
 
@@ -62,6 +89,10 @@ io.on("connection", (socket) => {
 
     io.to(user.id).emit("notesData", {
       notes: getNotes()
+    });
+
+    io.to(user.id).emit("imageNotesData", {
+      imageNotes: getImageNotes()
     });
     
     //no error's callback
@@ -114,7 +145,7 @@ io.on("connection", (socket) => {
   socket.on("gameStart", () => {
     console.log("GAME START CALLED");
     console.log(socket.id);
-    startGame(socket)
+    startGame(socket);
     // broadcast.to(user.room).emit('gameStart', {  });
   });
 
@@ -149,6 +180,21 @@ io.on("connection", (socket) => {
     //.to(user.room)
     .broadcast
     .emit("incoming-notes", latestNotes);
+  })
+
+  socket.on('sync_image_notes', (imageNotes, callback) => {
+    console.log("recevied notes length",imageNotes.length);
+    updateImageNotes(imageNotes);
+    const latestImageNotes = getImageNotes();
+    console.log("recevied notes length",latestImageNotes);
+    const user = getUser(socket.id);
+    //console.log("user room info", user);
+    callback({status: "ok"});
+    //TODO: fix the user.room undefined problem
+    socket
+    //.to(user.room)
+    .broadcast
+    .emit("incoming-image-notes", latestImageNotes);
   })
 
   socket.on("disconnect", () => {

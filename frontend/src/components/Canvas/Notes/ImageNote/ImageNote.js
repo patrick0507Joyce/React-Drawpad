@@ -3,24 +3,31 @@ import Draggable from 'react-draggable';
 import {BsPencilSquare, BsTrash} from "react-icons/bs";
 import {BiSave} from "react-icons/bi";
 import socket from "../../../socket";
-import "./Note.css";
 
-const Note = ({ index, coordinate, noteContent, removeNote, updateNoteText, updateNoteCoordinates }) => {
+import "./ImageNote.css";
+
+const ImageNote = ({ index, imageURL, coordinate, noteContent, removeNote, updateNoteText, updateNoteCoordinates }) => {
   const [editingStatus, setEditingStatus] = useState(false);
   const [textValue, setTextValue] = useState(noteContent);
   const [coordinates, setCoordinates] = useState(coordinate);
-
+  const [backgroundImageURL, setBackgroundImageURL] = useState(imageURL);
+  
   useEffect(() => {
-    socket.on("incoming-notes", (updatedNotes) => {
-      console.log("incoming notes", updatedNotes);
-      updatedNotes.map((updatedNote) => {
-        if (updatedNote.id === index) {
-          setTextValue(updatedNote.noteText);
-          setCoordinates(updatedNote.coordinates);
+    socket.on("incoming-image-notes", (updatedImageNotes) => {
+      console.log("incoming notes", updatedImageNotes);
+      updatedImageNotes.map((updatedImageNote) => {
+        if (updatedImageNote.id === index) {
+          setTextValue(updatedImageNote.noteText);
+          setCoordinates(updatedImageNote.coordinates);
         }
       })
     })
   }, []);
+
+  useEffect(() => {
+    console.log({imageURL});
+    setBackgroundImageURL(imageURL);
+  }, [imageURL])
 
   const onEditNote = () => {
     setEditingStatus(true);
@@ -74,7 +81,7 @@ const Note = ({ index, coordinate, noteContent, removeNote, updateNoteText, upda
         onStop={handleDragStop}
         position={coordinates}   
       >
-        <div className="textNote">
+        <div className="note">
           <form onSubmit={onSaveNote}>
             <input
               value={textValue}
@@ -84,6 +91,7 @@ const Note = ({ index, coordinate, noteContent, removeNote, updateNoteText, upda
               <BiSave />
             </button>
           </form>
+          <img src={backgroundImageURL} width="200px" height="200px" />
         </div>
       </Draggable>
     );
@@ -94,7 +102,7 @@ const Note = ({ index, coordinate, noteContent, removeNote, updateNoteText, upda
         onStop={handleDragStop}   
         position={coordinates}   
       >
-      <div className="textNote">
+      <div className="note" >
         <p>{textValue}</p>
         <span>
           <button onClick={onEditNote} id="edit">
@@ -104,10 +112,11 @@ const Note = ({ index, coordinate, noteContent, removeNote, updateNoteText, upda
             <BsTrash />
           </button>
         </span>
+        <img src={backgroundImageURL} width="200px" height="200px" />
       </div>
       </Draggable>
     );
   }
 };
 
-export default Note;
+export default ImageNote;

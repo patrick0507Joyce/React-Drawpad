@@ -274,6 +274,15 @@ const Canvas = () => {
     }
   };
 
+  const saveCanvasAsImage = () => {
+    let tagA = document.createElement("a");
+    document.body.appendChild(tagA);
+    tagA.href = canvasRef.current.toDataURL();
+    tagA.download = "canvas-image.png";
+    tagA.click();
+    document.body.removeChild(tagA);
+  }
+
   return (
     <div id="canvasContainer" className="canvasContainer">
       <div className="buttonContainer">
@@ -309,6 +318,14 @@ const Canvas = () => {
         >
           Undo Last Move
         </Button>
+        <Button
+        variant="contained"
+          color="default"
+          startIcon={<CgUndo />}
+          onClick={saveCanvasAsImage}
+        >
+          Save Image
+        </Button>
       </div>
       {showPopup ? (
         <Popup
@@ -321,7 +338,7 @@ const Canvas = () => {
       ) : null}
       <div className="notesHeaderContainer">
         <Typography variant="h6" align="center">
-          Add New Notes
+          Whiteboard Space
         </Typography>
       </div>
       <canvas className="canvas" ref={canvasRef} width="775" height="300" />

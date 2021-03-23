@@ -8,10 +8,10 @@ div.board {
 
 }
 
-div.textNote {
-    height: 100px;
-    width: 100px;
-    background-color: yellow;
+div.note {
+    height: 200px;
+    width: 200px;
+    background-color: white;
     margin: 2px 0;
     position: absolute;
     cursor: -webkit-grab;
@@ -19,22 +19,22 @@ div.textNote {
     box-shadow: 5px 5px 15px 0 rgba(0, 0, 0, .2);
 }
 
-div.textNote:active {
+div.note:active {
     cursor: -webkit-grabbing;
 }
 
-div.textNote p {
+div.note p {
     font-size: 15px;
     padding: 2px;
     font-family: 'Open Sans', sans-serif;
     font-weight: 700;
 }
 
-div.textNote:hover > span {
+div.note:hover > span {
     opacity: 1;
 }
 
-div.textNote > span {
+div.note > span {
     position: absolute;
     bottom: 2px;
     right: 2px;
@@ -42,11 +42,11 @@ div.textNote > span {
     transition: opacity .25s linear;
 }
 
-div.textNote button {
+div.note button {
     margin: 2px;
 }
 
-div.textNote > textarea {
+div.note > textarea {
     height: 75%;
     background: rgba(255, 255, 255, .5);
 }
